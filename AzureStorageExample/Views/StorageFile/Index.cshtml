@@ -1,0 +1,14 @@
+﻿@model  System.Collections.Generic.List<string>
+@{
+    ViewBag.Title = "Azure File Storage";
+}
+
+<h1>Azure File Storage</h1>
+<div class="row">
+    <ul>
+        @foreach (var name in Model)
+        {
+            <li>@Html.ActionLink(name, "DownloadFile", new { fileName = name })</li>
+        }
+    </ul>
+</div>

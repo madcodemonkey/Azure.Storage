@@ -1,0 +1,15 @@
+﻿@model  System.Collections.Generic.List<string>
+(
+@{
+    ViewBag.Title = "Azure Blob Storage";
+}
+
+<h1>Azure Blob Storage</h1>
+<div class="row">
+    <ul>
+        @foreach (var name in Model)
+        {
+            <li>@Html.ActionLink(name, "DownloadBlob", new { blobName = name })</li>
+        }
+    </ul>
+</div>
