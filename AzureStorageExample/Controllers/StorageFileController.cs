@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Web;
 using System.Web.Mvc;
@@ -9,7 +10,6 @@ namespace StorageExamples.Controllers
 {
     public class StorageFileController : Controller
     {
-        // GET: StorageFile
         public ActionResult Index()
         {
             var helper = new AzureFileStorageHelper("StorageConnectionString", "ShareName");
@@ -21,6 +21,15 @@ namespace StorageExamples.Controllers
             }            
 
             return View(fileList);
+        }
+
+        [HttpPost]
+        public ActionResult DeleteFile(string fileName)
+        {
+            var helper = new AzureFileStorageHelper("StorageConnectionString", "ShareName");
+            helper.DeleteFile(helper.CloudRootDirectory, fileName);
+
+            return RedirectToAction("Index");
         }
 
         public ActionResult DownloadFile(string fileName)
@@ -47,5 +56,26 @@ namespace StorageExamples.Controllers
             // https://stackoverflow.com/questions/3084366/how-do-i-dispose-my-filestream-when-implementing-a-file-download-in-asp-net
             return File(myStream, mimeType, myCloudFile.Name);
         }
+
+        [HttpPost]
+        public ActionResult UploadFile()
+        {
+            var httpRequest = HttpContext.Request;
+
+            if (httpRequest.Files.Count > 0)
+            {
+                const int fileIndex = 0;
+                var helper = new AzureFileStorageHelper("StorageConnectionString", "ShareName");
+
+                var fileName = FileUploadHelper.GetFileName(httpRequest, fileIndex);
+                using (Stream fileStream = FileUploadHelper.GetInputStream(httpRequest, fileIndex))
+                    helper.UploadFile(helper.CloudRootDirectory, fileName, fileStream);
+                
+                return RedirectToAction("Index");
+            }
+
+            throw new ArgumentException("File count is zero.");
+        }
+
     }
 }

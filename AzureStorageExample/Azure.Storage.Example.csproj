@@ -175,6 +175,7 @@
     <Compile Include="Models\AzureFileStorageFileInfo.cs" />
     <Compile Include="Models\AzureBlobStorageHelper.cs" />
     <Compile Include="Models\AzureFileStorageHelper.cs" />
+    <Compile Include="Models\FileUploadHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

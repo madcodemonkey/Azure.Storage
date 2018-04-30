@@ -1,15 +1,52 @@
 ﻿@model  System.Collections.Generic.List<string>
-(
 @{
     ViewBag.Title = "Azure Blob Storage";
 }
 
-<h1>Azure Blob Storage</h1>
+<h1>Download files from your Azure Blob Storage account</h1>
 <div class="row">
-    <ul>
-        @foreach (var name in Model)
-        {
-            <li>@Html.ActionLink(name, "DownloadBlob", new { blobName = name })</li>
-        }
-    </ul>
+    <table>
+        <thead>
+            <tr>
+                <th>Blob Name</th>
+                <th>&nbsp;</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var name in Model)
+            {
+                <tr>
+                    <td>@Html.ActionLink(name, "DownloadBlob", new { blobName = name })</td>
+                    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                    <td>
+                        @using (Html.BeginForm("DeleteBlob", "StorageBlob", FormMethod.Post))
+                        {
+                            <input name="blobName" value="@(name)" type="hidden" />
+                            <input type="submit" value="Delete Blob" />
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<hr />
+
+<h1>Upload a file the root directory in your Azure Blob Storage account</h1>
+
+<div class="row">
+    @using (Html.BeginForm("UploadFile", "StorageBlob", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <label for="directory">Optional Directory Name:</label>
+        <input type="text" name="directory" id="directory" />
+        <br />
+
+        <label for="file">Filename:</label>
+        <input type="file" name="file" id="file" />
+        <br />
+
+        <input type="submit" value="Upload File" />
+    }
 </div>

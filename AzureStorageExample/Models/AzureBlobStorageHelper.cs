@@ -8,46 +8,35 @@ namespace StorageExamples.Models
 {
     public class AzureBlobStorageHelper
     {
-        private bool _initialized = false;
         private CloudStorageAccount _storageAccount;
         private CloudBlobClient _blogClient;
         private CloudBlobContainer _blogContainer;
-         private readonly string _nameOfConnectionStringInAppSettings;
-        private readonly string _nameOfStorageAccountShareInAppSettings;
 
         /// <summary>Cloud Storage Helper</summary>
         /// <param name="nameOfConnectionStringInAppSettings">The name of the key in your config file within the app settings section that has the connnection string</param>
         /// <param name="nameOfStorageAccountShareInAppSettings">The name of the key in your config file within the app settings section that has the name of your storage account share in Azure</param>
         public AzureBlobStorageHelper(string nameOfConnectionStringInAppSettings, string nameOfStorageAccountShareInAppSettings)
         {
-            _nameOfConnectionStringInAppSettings = nameOfConnectionStringInAppSettings;
-            _nameOfStorageAccountShareInAppSettings = nameOfStorageAccountShareInAppSettings;
-        }
-           
-        public void Initialize()
-        {
             // Parse the connection string and return a reference to the storage account.
-            _storageAccount = CloudStorageAccount.Parse( CloudConfigurationManager.GetSetting(_nameOfConnectionStringInAppSettings));
+            _storageAccount = CloudStorageAccount.Parse( CloudConfigurationManager.GetSetting(nameOfConnectionStringInAppSettings));
 
             // Create a CloudFileClient object for credentialed access to Azure Files.
             _blogClient = _storageAccount.CreateCloudBlobClient();
 
             // Get a reference to the file share we created previously.            
-            var containerName = CloudConfigurationManager.GetSetting(_nameOfStorageAccountShareInAppSettings);
+            var containerName = CloudConfigurationManager.GetSetting(nameOfStorageAccountShareInAppSettings);
             _blogContainer = _blogClient.GetContainerReference(containerName);
 
             // Ensure that the share exists.
             if (_blogContainer.Exists() == false)
                 throw new Exception($"The storage account blob container named '{containerName}' does NOT exist!");
-
-            _initialized = true;
         }
 
+        /// <summary>Find a blob</summary>
+        /// <param name="blobName">The blob name and any path that is needed (e.g., 'Images/Test.jpg' or if it's at the root 'Test.jpg')</param>
+        /// <returns>A CloudBlockBlob that represents the file.</returns>
         public CloudBlockBlob FindBlob(string blobName)
         {
-            if (_initialized == false)
-                Initialize();
-
             string blobWithoutStartingSlashes = RemoveSlashes(blobName);
 
             if (string.IsNullOrWhiteSpace(blobWithoutStartingSlashes))
@@ -56,6 +45,8 @@ namespace StorageExamples.Models
             return _blogContainer.GetBlockBlobReference(blobName);
         }
 
+        /// <summary>Delete a blob</summary>
+        /// <param name="blobName">The blob name and any path that is needed (e.g., 'Images/Test.jpg' or if it's at the root 'Test.jpg')</param>
         public void DeleteBlob(string blobName)
         {
             CloudBlockBlob blockBlob = FindBlob(blobName);
@@ -64,17 +55,13 @@ namespace StorageExamples.Models
             if (blockBlob.Exists())
                 blockBlob.Delete();
         }
-
-
+        
         /// <summary>List files</summary>
         /// <param name="useFlatBlobListing">Indicates if you want files listed in root (false) or all files</param>
         /// <param name="maximumNumberOfFiles">Maximium number of files to retrieve (-1 indicates no maximum)</param>
         /// <returns></returns>
-        public List<CloudBlockBlob> ListFiles(bool useFlatBlobListing, int maximumNumberOfFiles = -1)
+        public List<CloudBlockBlob> ListFiles(string prefix, bool useFlatBlobListing, int maximumNumberOfFiles = -1)
         {
-            if (_initialized == false)
-                Initialize();
-
             var result = new List<CloudBlockBlob>();
 
             foreach (IListBlobItem item in _blogContainer.ListBlobs(null, useFlatBlobListing: useFlatBlobListing))
@@ -100,7 +87,7 @@ namespace StorageExamples.Models
         }
 
         /// <summary>Uploads a stream to the named blob</summary>
-        /// <param name="blobName">Name of the blob with folder names in front (e.g., Images/MyPicture.jpg  or if in the root MyPicture.jpg)</param>
+        /// <param name="blobName">The blob name and any path that is needed (e.g., 'Images/Test.jpg' or if it's at the root 'Test.jpg')</param>
         /// <param name="fileStream">A filestream to upload.  You are responsible for disposing of the stream!</param>
         public void UploadBlob(string blobName, System.IO.Stream fileStream)
         {

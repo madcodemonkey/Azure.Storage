@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Web;
 using System.Web.Mvc;
@@ -9,14 +10,13 @@ namespace StorageExamples.Controllers
 {
     public class StorageBlobController : Controller
     {
-        // GET: StorageBlob
         public ActionResult Index()
         {
             var fileList = new List<string>();
 
             var helper = new AzureBlobStorageHelper("StorageConnectionString", "BlobContainerName");
 
-            foreach(var cloudBlockBlob in helper.ListFiles(true, 15))
+            foreach(var cloudBlockBlob in helper.ListFiles(null, true, 15))
             {
                 fileList.Add(cloudBlockBlob.Name);
             }
@@ -28,6 +28,40 @@ namespace StorageExamples.Controllers
         {
             return DownloadAzureBlob(blobName);
         }
+
+        [HttpPost]
+        public ActionResult DeleteBlob(string blobName)
+        {
+            var helper = new AzureBlobStorageHelper("StorageConnectionString", "BlobContainerName");
+            helper.DeleteBlob(blobName);
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public ActionResult UploadFile()
+        {
+            var httpRequest = HttpContext.Request;
+
+            if (httpRequest.Files.Count > 0)
+            {
+                const int fileIndex = 0;
+                var helper = new AzureBlobStorageHelper("StorageConnectionString", "BlobContainerName");
+                
+                var directory = FileUploadHelper.GetFormValue<string>(httpRequest, "directory", string.Empty);
+                var fileName = string.IsNullOrWhiteSpace(directory) ?
+                    FileUploadHelper.GetFileName(httpRequest, fileIndex) :
+                    Path.Combine(directory, FileUploadHelper.GetFileName(httpRequest, fileIndex));
+
+                using (Stream fileStream = FileUploadHelper.GetInputStream(httpRequest, fileIndex))
+                    helper.UploadBlob(fileName, fileStream);
+                
+                return RedirectToAction("Index");
+            }
+         
+            throw new ArgumentException("File count is zero.");            
+        }
+
 
         private FileResult DownloadAzureBlob(string blobName)
         {
