@@ -31,7 +31,14 @@
         </tbody>
     </table>
 </div>
+<hr />
 
+@Html.ActionLink("Zip The Images directory", "ZipBlob", new { blobName = "Images" })
+<br />
+@Html.ActionLink("Zip The Images/MoreStuff directory", "ZipBlob", new { blobName = "Images/MoreStuff" })
+<br />
+@Html.ActionLink("Zip The DavidYates.jpg file", "ZipBlob", new { blobName = "DavidYates.jpg" })
+<br />
 <hr />
 
 <h1>Upload a file the root directory in your Azure Blob Storage account</h1>

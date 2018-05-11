@@ -55,7 +55,7 @@ namespace StorageExamples.Models
             if (blockBlob.Exists())
                 blockBlob.Delete();
         }
-        
+
         /// <summary>List files</summary>
         /// <param name="useFlatBlobListing">Indicates if you want files listed in root (false) or all files</param>
         /// <param name="maximumNumberOfFiles">Maximium number of files to retrieve (-1 indicates no maximum)</param>
@@ -63,8 +63,8 @@ namespace StorageExamples.Models
         public List<CloudBlockBlob> ListFiles(string prefix, bool useFlatBlobListing, int maximumNumberOfFiles = -1)
         {
             var result = new List<CloudBlockBlob>();
-
-            foreach (IListBlobItem item in _blogContainer.ListBlobs(null, useFlatBlobListing: useFlatBlobListing))
+           
+            foreach (IListBlobItem item in _blogContainer.ListBlobs(prefix, useFlatBlobListing: useFlatBlobListing))
             {
                 if (maximumNumberOfFiles > -1 && result.Count >= maximumNumberOfFiles)
                     break;
@@ -85,6 +85,7 @@ namespace StorageExamples.Models
 
             return result;
         }
+
 
         /// <summary>Uploads a stream to the named blob</summary>
         /// <param name="blobName">The blob name and any path that is needed (e.g., 'Images/Test.jpg' or if it's at the root 'Test.jpg')</param>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Web;
 using System.Web.Mvc;
+using Ionic.Zip;
 using Microsoft.WindowsAzure.Storage.Blob;
 using StorageExamples.Models;
 
@@ -37,6 +38,37 @@ namespace StorageExamples.Controllers
 
             return RedirectToAction("Index");
         }
+
+        public void ZipBlob(string blobName)
+        {
+            var helper = new AzureBlobStorageHelper("StorageConnectionString", "BlobContainerName");
+
+            using (ZipFile theZipFile = new ZipFile())
+            {
+                List<CloudBlockBlob> blobList = helper.ListFiles(blobName, true, 100);
+                foreach (CloudBlockBlob myCloudBlob in blobList)
+                {
+                    // Download fails if your try to dispose of this cloud blob stream with using statement here.
+                    var myStream = myCloudBlob.OpenRead();
+
+                    // Remove first part of the path
+                    if (myCloudBlob.Name.StartsWith("Images"))
+                    {
+                        string newName = myCloudBlob.Name.Substring(7);
+                        theZipFile.AddEntry(newName, myStream);
+                    }
+                    else theZipFile.AddEntry(myCloudBlob.Name, myStream);   
+                    
+                }
+
+                Response.ClearContent();
+                Response.ClearHeaders();                           
+
+                Response.AppendHeader("content-disposition", "attachment; filename=Report.zip");
+                theZipFile.Save(Response.OutputStream);
+            } 
+        }
+
 
         [HttpPost]
         public ActionResult UploadFile()
