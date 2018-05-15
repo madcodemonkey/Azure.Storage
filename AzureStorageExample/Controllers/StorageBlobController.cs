@@ -39,7 +39,7 @@ namespace StorageExamples.Controllers
             return RedirectToAction("Index");
         }
 
-        public void ZipBlob(string blobName)
+        public ActionResult ZipBlob(string blobName)
         {
             var helper = new AzureBlobStorageHelper("StorageConnectionString", "BlobContainerName");
 
@@ -61,11 +61,7 @@ namespace StorageExamples.Controllers
                     
                 }
 
-                Response.ClearContent();
-                Response.ClearHeaders();                           
-
-                Response.AppendHeader("content-disposition", "attachment; filename=Report.zip");
-                theZipFile.Save(Response.OutputStream);
+                return new ZipResult(theZipFile, "Report.zip");
             } 
         }
 
