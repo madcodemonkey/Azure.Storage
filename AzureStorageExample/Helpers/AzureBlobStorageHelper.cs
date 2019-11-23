@@ -5,6 +5,7 @@ using Microsoft.Azure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System.Web;
+using System.Configuration;
 
 namespace StorageExamples.Models
 {
@@ -20,7 +21,9 @@ namespace StorageExamples.Models
         public AzureBlobStorageHelper(string nameOfConnectionStringInAppSettings, string nameOfStorageAccountShareInAppSettings)
         {
             // Parse the connection string and return a reference to the storage account.
-            _storageAccount = CloudStorageAccount.Parse( CloudConfigurationManager.GetSetting(nameOfConnectionStringInAppSettings));
+            string data = ConfigurationManager.AppSettings[nameOfConnectionStringInAppSettings];
+            string connectionString = CloudConfigurationManager.GetSetting(nameOfConnectionStringInAppSettings);
+            _storageAccount = CloudStorageAccount.Parse(connectionString);
 
             // Create a CloudFileClient object for credentialed access to Azure Files.
             _blobClient = _storageAccount.CreateCloudBlobClient();

@@ -1,7 +1,7 @@
-﻿using Ionic.Zip;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
+using Ionic.Zip;
 
-namespace StorageExamples
+namespace StorageExamples.Models
 {
     public class ZipResult : ActionResult
     {
@@ -23,5 +23,4 @@ namespace StorageExamples
             _theZipFile.Save(context.HttpContext.Response.OutputStream);
         }
     }
-
 }
