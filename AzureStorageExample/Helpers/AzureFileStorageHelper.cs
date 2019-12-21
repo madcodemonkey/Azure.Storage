@@ -92,6 +92,9 @@ namespace StorageExamples.Models
         /// <param name="fileStream">A filestream to upload.  You are responsible for disposing of the stream!</param>
         public CloudFile UploadFile(CloudFileDirectory cloudDirectory, string fileName, System.IO.Stream fileStream)
         {
+            if (string.IsNullOrWhiteSpace(fileName))
+                throw new ArgumentException("Please specify a file!");
+
             string fileNameOnly = Path.GetFileName(fileName);
 
             // File the file exists, it will be overwritten; otherwise, it will be created after being uploaded.

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using Ionic.Zip;
@@ -11,17 +12,19 @@ namespace StorageExamples.Controllers
 {
     public class StorageBlobController : Controller
     {
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
             var fileList = new List<string>();
 
             var helper = new AzureBlobStorageHelper("StorageConnectionString", "BlobContainerName");
 
-            foreach(var cloudBlockBlob in helper.ListFiles(null, true, 15))
+            var result = await helper.ListFilesIgnoreMemoryConcernsAsync(null, true, 5);
+
+            foreach (var cloudBlockBlob in result)
             {
                 fileList.Add(cloudBlockBlob.Name);
             }
-
+ 
             return View(fileList);
         }
 
@@ -31,21 +34,21 @@ namespace StorageExamples.Controllers
         }
 
         [HttpPost]
-        public ActionResult DeleteBlob(string blobName)
+        public async Task<ActionResult> DeleteBlob(string blobName)
         {
             var helper = new AzureBlobStorageHelper("StorageConnectionString", "BlobContainerName");
-            helper.DeleteBlob(blobName);
+            await helper.DeleteBlobAsync(blobName);
 
             return RedirectToAction("Index");
         }
 
-        public ActionResult ZipBlob(string blobName)
+        public async Task<ActionResult> ZipBlob(string blobName)
         {
             var helper = new AzureBlobStorageHelper("StorageConnectionString", "BlobContainerName");
 
             using (ZipFile theZipFile = new ZipFile())
             {
-                List<CloudBlockBlob> blobList = helper.ListFiles(blobName, true, 100);
+                List<CloudBlockBlob> blobList = await helper.ListFilesIgnoreMemoryConcernsAsync(blobName, true, 100);
                 foreach (CloudBlockBlob myCloudBlob in blobList)
                 {
                     // Download fails if your try to dispose of this cloud blob stream with using statement here.
@@ -67,7 +70,7 @@ namespace StorageExamples.Controllers
 
 
         [HttpPost]
-        public ActionResult UploadFile()
+        public async Task<ActionResult> UploadFile()
         {
             var httpRequest = HttpContext.Request;
 
@@ -82,7 +85,7 @@ namespace StorageExamples.Controllers
                     Path.Combine(directory, FileUploadHelper.GetFileName(httpRequest, fileIndex));
 
                 using (Stream fileStream = FileUploadHelper.GetInputStream(httpRequest, fileIndex))
-                    helper.UploadBlob(fileName, fileStream);
+                    await helper.UploadBlobAsync(fileName, fileStream, null);
                 
                 return RedirectToAction("Index");
             }
