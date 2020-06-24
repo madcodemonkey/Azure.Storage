@@ -249,6 +249,59 @@ namespace StorageExamples.Models
             return result;
         }
 
+		
+		
+		
+       /// <summary>
+        /// Copies a blob from one location to another
+        /// </summary>
+        /// <param name="sourcePathAndFilename">relative path to the source file in blob storage (path contains container name, path and file name)</param>
+        /// <param name="destinationPathAndFilename">relative path to the target file in blob storage (path contains container name, path and file name)</param>
+        /// <param name="canOverwrite">Indicates if you are allowed to overwrite an existing file.  If false and the <paramref name="destinationPathAndFilename"/> exists, you will get an exception.</param>
+        /// <returns>True if the copy succeeds; otherwise, false</returns>
+        /// <remarks>See https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blob-copy</remarks>
+        public async Task<bool> CopyFileWithinBlobStorage(string sourcePathAndFilename, string destinationPathAndFilename, bool canOverwrite)
+        {
+            CloudBlockBlob sourceBlockBlob = FindBlob(sourcePathAndFilename);
+
+            if (await sourceBlockBlob.ExistsAsync() == false)
+                throw new FileNotFoundException($"Unable to find a source file named {sourcePathAndFilename}");
+
+            try
+            {
+                // Lease the source blob for the copy operation to prevent another client from modifying it.
+                // Specifying null for the lease interval creates an infinite lease.
+                // Maximum appears to be 1 minute according the exceptions I received when I make it 5 minutes
+                string leaseId = await sourceBlockBlob.AcquireLeaseAsync(TimeSpan.FromMinutes(1));
+
+                CloudBlockBlob detinationBlockBlob = FindBlob(destinationPathAndFilename);
+
+                if (canOverwrite == false && await detinationBlockBlob.ExistsAsync())
+                    throw new ArgumentException("Unable to copy a file because the destination file already exists and the can over write parameter is set to false!");
+
+                // Get the ID of the copy operation.
+                await detinationBlockBlob.StartCopyAsync(sourceBlockBlob);
+
+                // Fetch the destination blob's properties before checking the copy state.
+                await detinationBlockBlob.FetchAttributesAsync();
+
+                return detinationBlockBlob.CopyState.Status == CopyStatus.Success;
+            }
+            finally
+            {
+                // Break the lease on the source blob.
+                if (sourceBlockBlob != null)
+                {
+                    await sourceBlockBlob.FetchAttributesAsync();
+
+                    if (sourceBlockBlob.Properties.LeaseState != LeaseState.Available)
+                    {
+                        await sourceBlockBlob.BreakLeaseAsync(new TimeSpan(0));
+                    }
+                }
+            }
+        }		
+		
     }
 
     public class AzureBlogQuery
