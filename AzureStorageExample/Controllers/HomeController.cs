@@ -1,11 +1,6 @@
-﻿using System.IO;
-using System.Web;
-using System.Web.Mvc;
-using Microsoft.WindowsAzure.Storage.Blob;
-using Microsoft.WindowsAzure.Storage.File;
-using StorageExamples.Models;
+﻿using System.Web.Mvc;
 
-namespace StorageExamples.Controllers
+namespace AzureStorageExample.Controllers
 {
     public class HomeController : Controller
     {

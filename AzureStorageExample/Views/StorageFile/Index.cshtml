@@ -1,4 +1,4 @@
-﻿@model  System.Collections.Generic.List<string>
+﻿@model  System.Collections.Generic.List<StorageExamples.Models.FileListResult>
 @{
     ViewBag.Title = "Azure File Storage";
 }
@@ -14,17 +14,34 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var name in Model)
+            @foreach (var item in Model)
             {
                 <tr>
-                    <td>@Html.ActionLink(name, "DownloadFile", new { fileName = name })</td>
+                    <td>
+                        @if (item.IsDirectory)
+                        {
+                            <span>@item.Name</span>
+                        }
+                        else
+                        {
+                            @Html.ActionLink(item.Name, "DownloadFile", new { fileName = item.Name })
+                        }
+                    </td>
                     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                     <td>
-                        @using (Html.BeginForm("DeleteFile", "StorageFile", FormMethod.Post))
+                        @if (item.IsDirectory)
                         {
-                            <input name="fileName" value="@(name)" type="hidden" />
-                            <input type="submit" value="Delete File" />
+                            <span>Directory</span>
                         }
+                        else
+                        {
+                            using (Html.BeginForm("DeleteFile", "StorageFile", FormMethod.Post))
+                            {
+                                <input name="fileName" value="@(item.Name)" type="hidden" />
+                                <input type="submit" value="Delete File" />
+                            }
+                        }
+
                     </td>
                 </tr>
             }

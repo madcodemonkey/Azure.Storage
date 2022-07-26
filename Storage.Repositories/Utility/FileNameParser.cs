@@ -1,33 +1,43 @@
-﻿namespace StorageExamples.Models
+﻿using System;
+
+namespace Storage.Repositories
 {
-    public class AzureFileStorageFileInfo
+    public class ParsedFileName
     {
-        public AzureFileStorageFileInfo(string fileName)
+        public string DirectoryName { get; set; }
+        public string FileName { get; set; }
+    }
+
+    public class FileNameParser
+    {
+        public static ParsedFileName Parse(string fileName)
         {
+            var result = new ParsedFileName();
+
             int indexOfBackSlash = fileName.LastIndexOf("\\");
             int indexOfSlash = fileName.LastIndexOf("/");
 
             // If there isn't a path in the file name, the file should be in the current directory.
             if (indexOfBackSlash == -1 && indexOfSlash == -1)
             {
-                Directory = string.Empty;
-                FileName = fileName;
+                result.DirectoryName = string.Empty;
+                result.FileName = fileName;
             }
             else
             {
-                FileName = indexOfBackSlash != -1 ?
+                result.FileName = indexOfBackSlash != -1 ?
                     fileName.Substring(indexOfBackSlash + 1) :
                     fileName.Substring(indexOfSlash + 1);
 
-                Directory = indexOfBackSlash != -1 ?
+                result.DirectoryName = indexOfBackSlash != -1 ?
                     GetSubDirectoryPath("\\", indexOfBackSlash, fileName) :
                     GetSubDirectoryPath("/", indexOfSlash, fileName);
             }
+
+            return result;
         }
 
-        public string Directory { get; set; }
-        public string FileName { get; set; }
-
+        
         /// <summary>Get a sub-directory path.</summary>
         /// <param name="slashType"></param>
         /// <param name="indexOfSlash"></param>
