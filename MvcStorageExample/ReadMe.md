@@ -5,9 +5,12 @@ This example shows how to use Azure Blob and File Storage.
 To get this example working with your own Azure account, you will need to a few things:
 
 ## Step 1: Azure Portal
-1. Create new file and blob storage containers
+1. Create a storage account
+1. Create new file share in teh storage account 
+1. Create a new blob storage container (under containers)
+1. Generate out a new Shared Access Signature (don't forget to allow both "Container" and "Object"); afterwards, it should generate a new SAS and connection string.
 
-## Step 2: Update these items in the appSettings.json file
+## Step 2: Update these items in the appsettings.json file
 1. StorageConnectionString 
 1. ShareName
 1. BlobContainerName
