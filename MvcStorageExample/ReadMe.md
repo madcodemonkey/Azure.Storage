@@ -5,7 +5,7 @@ This example shows how to use Azure Blob and File Storage.
 To get this example working with your own Azure account, you will need to a few things:
 
 ## Step 1: Azure Portal
-1. Create new file and blog storage containers
+1. Create new file and blob storage containers
 
 ## Step 2: Update these items in the appSettings.json file
 1. StorageConnectionString 
