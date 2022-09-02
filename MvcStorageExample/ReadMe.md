@@ -25,5 +25,5 @@ Optionally, you can right click the project and left click "Manage User Secrets"
 ```
 
 ## Step 3: Using the application you can 
-1. Upload files into both the file and blog storage.
+1. Upload files into both the file and blob storage.
 
