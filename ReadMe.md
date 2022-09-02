@@ -1,7 +1,7 @@
 # Azure Storage Examples
 
 ## Projects List
-- MvcStorageExample directory  (AzureStorageExample) - This is a MVC application that demonstrates upload and download files from blob and file storage
+- MvcStorageExample directory  (AzureStorageExample.sln) - This is a MVC application that demonstrates upload and download files from blob and file storage
 
 Notes
 - See the readme.md file in each project for setup instructions.
