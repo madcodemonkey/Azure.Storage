@@ -1,0 +1,14 @@
+﻿@{
+    ViewData["Title"] = "Static files Page";
+}
+
+<h1>Static file links</h1>
+
+<div class="row">
+    <ul>
+        @foreach (var name in Model)
+        {
+            <li><a href="@Url.Action("DownloadStaticFile", new { fileName = name })">@name</a></li>
+        }
+    </ul>
+</div>

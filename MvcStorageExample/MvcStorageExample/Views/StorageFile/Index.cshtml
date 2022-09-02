@@ -1,0 +1,66 @@
+﻿@{
+    ViewData["Title"] = "Azure File Storage";
+}
+ 
+
+<h1>Download files from the root directory of your Azure File Storage account</h1>
+<div class="row">
+    <table>
+        <thead>
+        <tr>
+            <th>File Name</th>
+            <th>&nbsp;</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @if (item.IsDirectory)
+                    {
+                        <span>@item.Name</span>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("DownloadFile", new { fileName = item.Name })">@item.Name</a>
+                    }
+                </td>
+                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                <td>
+                    @if (item.IsDirectory)
+                    {
+                        <span>Directory</span>
+                    }
+                    else
+                    {
+                        using (Html.BeginForm("DeleteFile", "StorageFile", FormMethod.Post))
+                        {
+                            <input name="fileName" value="@(item.Name)" type="hidden" />
+                            <input type="submit" value="Delete File" />
+                        }
+                    }
+
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+
+<hr />
+
+<h1>Upload a file the root directory in your Azure File Storage account</h1>
+
+<div class="row">
+    @using (Html.BeginForm("UploadFile", "StorageFile", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <label for="file">Filename:</label>
+        <input type="file" name="file" id="file" />
+
+        <input type="submit" value="Upload File" />
+    }
+</div>
+
